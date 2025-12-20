@@ -1,26 +1,57 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
+
+/* --- 1. DEFAULT THEME (Your Purple Theme) --- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fff;
+  --primary-text: #000;
+  --secondary-text: #fff; /* White text on purple bg */
+  --tertiary-text: #9D6FA3;
+  --primary-bg: #3B173F;
+  --secondary-bg: #2E0C33;
+  --tertiary-bg: #D03260;
+  
+  /* Fonts */
+  --font-karla: "Karla", sans-serif;
 }
 
+/* --- 2. DARK MODE OVERRIDES (Your Dark Blue Theme) --- */
+/* These variables apply when the "dark" class is on the html tag */
+.dark {
+  --background: #0F1117;
+  --primary-text: #fff; /* Inverted for readability */
+  --secondary-text: #E5E7EB; /* Light gray */
+  --tertiary-text: #6B7280;
+  --primary-bg: #0F1117;
+  --secondary-bg: #1A1F2E; 
+  --tertiary-bg: #3B82F6;
+}
+
+/* --- 3. TAILWIND CONFIG --- */
 @theme inline {
   --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-primary-text: var(--primary-text);
+  --color-secondary-text: var(--secondary-text);
+  --color-tertiary-text: var(--tertiary-text);
+  --color-primary-bg: var(--primary-bg);
+  --color-secondary-bg: var(--secondary-bg);
+  --color-tertiary-bg: var(--tertiary-bg);
+  --font-karla: var(--font-karla);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* --- 4. BASE STYLES --- */
+@layer base {
+  * {
+    @apply p-0 m-0 box-border;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    /* Uses primary-bg and secondary-text by default */
+    @apply bg-primary-bg text-secondary-text antialiased transition-colors duration-300;
+    font-family: var(--font-karla);
+  }
+  button {
+    cursor: pointer;
+  }
 }

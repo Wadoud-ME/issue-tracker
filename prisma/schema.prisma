@@ -1,0 +1,46 @@
+// prisma/schema.prisma
+
+// 1. GENERATOR: This tells Prisma to create the JavaScript commands for us
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 2. DATASOURCE: This tells Prisma we are using a SQLite file
+// In version 5, we put the URL right here!
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// 3. MODEL: This is our data structure
+model Classification {
+  id        String   @id @default(cuid())  // Unique ID (like "clt123...")
+  name      String                           // The name (e.g. "Study")
+  createdAt DateTime @default(now())         // When was it created?
+  issues    Issue[]
+}
+
+model Issue {
+  id          String   @id @default(cuid())
+  title       String
+  description String?   // Optional long description
+  
+  // Status: "todo", "in_progress", "done"
+  status      String   @default("todo") 
+  
+  // Priority: "low", "medium", "high", "critical"
+  priority    String   @default("medium") 
+  
+  // Category: "bug", "feature", "improvement"
+  label       String   @default("feature")
+
+  // The Foreign Key (Link to Classification)
+  spaceId        String
+  classification Classification @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Optional: Auto-incrementing friendly ID (like ISS-1, ISS-2)
+  // For now, let's stick to simple CUIDs to keep it easy
+}
