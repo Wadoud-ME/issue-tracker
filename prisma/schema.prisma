@@ -8,7 +8,7 @@ generator client {
 // 2. DATASOURCE: This tells Prisma we are using a SQLite file
 // In version 5, we put the URL right here!
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
