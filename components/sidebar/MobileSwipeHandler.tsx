@@ -31,15 +31,15 @@ export default function MobileSwipeHandler() {
       if (Math.abs(deltaY) > 60) {
         touchStartX.current = null;
         touchStartY.current = null;
-        return;
+        return; 
       }
 
       // SWIPE RIGHT (Open Menu)
       // Condition 1: Moved right by at least 45px (Quick flick)
-      // Condition 2: Started within the left 120px of the screen
-      //    -> Old value was 40px (too close to edge, causing "Back" gesture conflict).
-      //    -> New value 120px lets you swipe from inside the content area.
-      if (!navOpened && deltaX > 65 && touchStartX.current < 400) {
+      // Condition 2: Started within the left 50px of the screen
+      //    -> Reduced from 120px to avoid conflict with horizontal scrolling tables.
+      //    -> Keeps it slightly larger than standard "Back" gesture zone (usually ~20px).
+      if (!navOpened && deltaX > 45 && touchStartX.current < 50) {
         setNavOpened(true);
       }
 
