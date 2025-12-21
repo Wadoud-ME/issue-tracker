@@ -35,7 +35,7 @@ Follow these steps to run the project locally.
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/YOUR_USERNAME/issue-tracker.git
+git clone https://github.com/Wadoud-ME/issue-tracker.git
 cd issue-tracker
 ```
 
@@ -103,7 +103,7 @@ Visit [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 🤝 Contributing
 
-Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/YOUR_USERNAME/issue-tracker/issues).
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/Wadoud-ME/issue-tracker/issues).
 
 ## 📄 License
 
