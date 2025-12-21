@@ -1,37 +1,27 @@
 "use client";
 
-import { 
-  Cookie, 
-  Plus, 
-  TextAlignJustify, 
-  Moon, // ✅ Import Icon
-  Sun   // ✅ Import Icon
-} from "lucide-react";
-import { useEffect, useState } from "react"; // ✅ Import useState
+import { Cookie, Plus, TextAlignJustify, Moon, Sun } from "lucide-react";
+import { useEffect, useState } from "react";
 import { cn } from "../../lib/utils";
 import AddClassificationModal from "./AddClassificationModal";
 import { deleteClassification } from "../../app/actions";
-import { useTheme } from "next-themes"; // ✅ Import Theme Hook
+import { useTheme } from "next-themes";
 
 import { SidebarList } from "./SidebarList";
 import { FloatingToggle } from "./FloatingToggle";
 import { useDataStore, useUIStore } from "@/stores/useStore";
 import Link from "next/link";
+import MobileSwipeHandler from "./MobileSwipeHandler";
 
 const Navbar = () => {
-  // 1. UI STORE
-  const { navOpened, toggleNav, isModalOpen, setIsModalOpen } = useUIStore();
-  
-  // 2. THEME SETUP
+  const { navOpened, setNavOpened , toggleNav, isModalOpen, setIsModalOpen } = useUIStore();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  // Prevent hydration mismatch by waiting for mount
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // 3. DATA STORE
   const {
     classifications,
     classificationsLoading,
@@ -40,7 +30,6 @@ const Navbar = () => {
     setOptimisticClassifications,
   } = useDataStore();
 
-  // --- DELETE HANDLER ---
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!window.confirm("Are you sure you want to delete this space?")) return;
@@ -57,13 +46,24 @@ const Navbar = () => {
     }
   };
 
-  // --- DATA FETCHER ---
   useEffect(() => {
     fetchClassifications();
   }, [fetchClassifications]);
 
   return (
     <>
+      {/* ✅ 1. MOUNT THE GESTURE LISTENER */}
+      <MobileSwipeHandler />
+      {/* ✅ 2. MOBILE BACKDROP (Overlay) 
+          When menu is open on mobile, clicking outside closes it.
+      */}
+      <div 
+        onClick={() => setNavOpened(false)}
+        className={cn(
+          "fixed inset-0 bg-black/60 z-40 backdrop-blur-sm transition-opacity duration-300 md:hidden",
+          navOpened ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        )}
+      />
       <nav
         className={cn(
           "fixed top-0 bottom-0 left-0 bg-primary-bg overflow-hidden shadow-2xl transition-all duration-500 ease-in-out whitespace-nowrap z-50",
@@ -91,7 +91,10 @@ const Navbar = () => {
 
           {/* --- ADD BUTTON --- */}
           <div className="flex items-center justify-between pt-4 pb-5 px-6 border-b border-tertiary-text">
-            <Link href="/spaces" className="text-xl text-secondary-text font-medium relative group cursor-pointer">
+            <Link
+              href="/spaces"
+              className="text-xl text-secondary-text font-medium relative group cursor-pointer"
+            >
               My Spaces
               <span className="absolute -bottom-[1.35rem] left-0 w-0 h-2 rounded-t-lg bg-tertiary-bg group-hover:w-full transition-all duration-300 z-10"></span>
             </Link>
@@ -117,7 +120,6 @@ const Navbar = () => {
           </div>
 
           {/* --- FOOTER (THEME TOGGLE) --- */}
-          {/* mt-auto pushes this to the bottom, justify-end pushes button to right */}
           <div className="p-4 border-t border-tertiary-text/20 bg-secondary-bg/50 mt-auto flex justify-end items-center">
             {mounted && (
               <button
@@ -125,18 +127,23 @@ const Navbar = () => {
                 className="flex items-center gap-2 p-2 rounded-lg text-tertiary-text hover:text-white hover:bg-white/10 transition-all duration-300 active:scale-95"
                 title="Toggle Theme"
               >
-                <span className="text-xs font-medium uppercase tracking-wider hover:opacity-100 transition-opacity">
-                    {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                <span className="text-xs font-medium uppercase tracking-wider opacity-100">
+                  {theme === "dark" ? "Light Mode" : "Dark Mode"}
                 </span>
                 {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
               </button>
             )}
           </div>
-
         </div>
       </nav>
 
-      <FloatingToggle key={navOpened ? "closed" : 'opened'} navOpened={navOpened} toggleNav={toggleNav} />
+      {/* ⚠️ CRITICAL FIX: Removed 'key' prop to restore smooth animations */}
+      <FloatingToggle
+        key={navOpened ? "closed" : "opened"}
+        navOpened={navOpened}
+        toggleNav={toggleNav}
+      />
+
       <AddClassificationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
