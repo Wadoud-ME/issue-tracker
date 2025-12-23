@@ -35,7 +35,7 @@ export const FloatingToggle = ({
       <button
         onClick={toggleNav}
         className={cn(
-          "fixed hidden md:block top-6 left-0 z-50 p-2 rounded-r-lg bg-secondary-bg hover:bg-tertiary-bg shadow-lg transition-all duration-300 ease-out cursor-pointer",
+          "fixed hidden md:block top-6 left-0 z-50 p-2 rounded-r-lg bg-secondary-bg hover:bg-tertiary-bg shadow-md transition-all duration-300 ease-out cursor-pointer",
           showButton
             ? "translate-x-0 opacity-100"
             : "-translate-x-full opacity-0 pointer-events-none"

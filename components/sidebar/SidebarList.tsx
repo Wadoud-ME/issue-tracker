@@ -41,10 +41,11 @@ export const SidebarList = ({
         <AlertCircle size={24} className="mb-2" />
         <p className="text-sm font-medium">{error}</p>
         <button
+          aria-label="Try agaom"
           onClick={onRetry}
           className="mt-3 text-xs underline hover:text-red-300"
         >
-          Try Retry
+          Retry
         </button>
       </div>
     );
@@ -98,8 +99,9 @@ export const SidebarList = ({
 
             {/* Delete Button (Keep this outside the Link so clicking it doesn't navigate) */}
             <button
+              aria-label="Delete Space"
               onClick={(e) => onDelete(item.id, e)}
-              className="absolute right-2 top-2 p-2 rounded-md text-gray-200 hover:bg-red-500/20 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+              className="absolute right-2 top-2 p-2 rounded-md text-gray-200 hover:bg-red-500/20 hover:text-red-400 opacity-100 md:opacity-0 group-hover:opacity-100 transition-all"
             >
               <Trash2 size={18} />
             </button>

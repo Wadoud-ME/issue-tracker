@@ -17,7 +17,7 @@ const SpacesPage = () => {
   }, [setNavOpened, fetchClassifications]);
 
   return (
-    <div className="min-h-screen w-full bg-primary-bg text-white">
+    <div className="min-h-dvh w-full bg-primary-bg text-white transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-8 py-12">
         
         {/* Header Section */}
@@ -30,7 +30,8 @@ const SpacesPage = () => {
           </div>
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 bg-tertiary-bg hover:brightness-110 text-primary-bg px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-tertiary-bg/50 transition-all duration-300 active:scale-95"
+            aria-label="Create Space"
+            className="flex items-center gap-2 bg-tertiary-bg hover:brightness-110 text-primary-bg px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-tertiary-bg/20 transition-all duration-300 active:scale-95"
           >
             <Plus size={20} strokeWidth={2.5} />
             Create Space
@@ -62,6 +63,7 @@ const SpacesPage = () => {
             </p>
             <button 
               onClick={() => setIsModalOpen(true)}
+              aria-label="Create First Space"
               className="flex items-center gap-2 bg-tertiary-bg hover:brightness-110 text-primary-bg px-8 py-3 rounded-lg font-semibold shadow-lg hover:shadow-tertiary-bg/50 transition-all duration-300 active:scale-95"
             >
               <Sparkles size={20} />
@@ -79,7 +81,7 @@ const SpacesPage = () => {
                 style={{ animationDelay: `${index * 50}ms` }}
               >
                 {/* Gradient Overlay on Hover */}
-                <div className="absolute inset-0 bg-linear-to-br from-tertiary-bg/0 to-tertiary-bg/0 group-hover:from-tertiary-bg/5 group-hover:to-tertiary-bg/10 transition-all duration-500 rounded-2xl" />
+                <div className="absolute inset-0 bg-linear-to-br from-tertiary-bg/0 to-tertiary-bg/0 group-hover:from-tertiary-bg/5 group-hover:to-tertiary-bg/20 transition-all duration-500 rounded-2xl" />
                 
                 {/* Top Section */}
                 <div className="relative flex items-start justify-between">
@@ -110,7 +112,7 @@ const SpacesPage = () => {
                 </div>
 
                 {/* Shine Effect on Hover */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-800">
                   <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                 </div>
               </Link>

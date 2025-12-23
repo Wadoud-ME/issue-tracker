@@ -18,7 +18,7 @@ const AddClassificationModal = ({ isOpen, onClose }: ModalProps) => {
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape" && !isSubmitting) onClose();
     };
 
     if (isOpen) {
@@ -28,17 +28,21 @@ const AddClassificationModal = ({ isOpen, onClose }: ModalProps) => {
     return () => {
       window.removeEventListener("keydown", handleEscape);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, isSubmitting]);
 
-  if (!isOpen) return null;
+  // 1. Change the signature to handle the Event, not just FormData
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault(); // Stop the browser from reloading
+    setIsSubmitting(true); // This will now force a re-render immediately
 
-  const handleSubmit = async (formData: FormData) => {
-    setIsSubmitting(true);
+    const formData = new FormData(e.currentTarget); // Extract data manually
+
     try {
       const result = await createClassification(formData);
       if (result.success) {
+        // Fetch FIRST, then close. This prevents a flicker of old data.
+        await fetchClassifications(); 
         onClose();
-        fetchClassifications(); // Refresh the list
       } else {
         alert(result.error || "Failed to create space");
       }
@@ -56,15 +60,18 @@ const AddClassificationModal = ({ isOpen, onClose }: ModalProps) => {
     }
   };
 
+  if (!isOpen) return null;
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-      onClick={handleBackdropClick}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      onClick={!isSubmitting ? handleBackdropClick : undefined}
     >
       <div className="w-full max-w-md bg-secondary-bg p-6 rounded-xl border border-tertiary-text/20 shadow-2xl">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-tertiary-bg">New Space</h2>
           <button
+            aria-label="Close Modal"
             onClick={onClose}
             className="text-gray-400 hover:text-white transition-colors"
             disabled={isSubmitting}
@@ -73,14 +80,15 @@ const AddClassificationModal = ({ isOpen, onClose }: ModalProps) => {
           </button>
         </div>
 
-        <form action={handleSubmit}>
+        {/* 2. Use onSubmit instead of action */}
+        <form onSubmit={handleSubmit}>
           <div className="mb-6">
             <label className="block text-sm text-gray-400 mb-2">Name</label>
             <input
               name="name"
               type="text"
               placeholder="e.g. Work, Study, Health"
-              className="w-full p-3 rounded-lg bg-primary-bg text-white border border-tertiary-text/30 focus:border-tertiary-bg outline-none transition-colors"
+              className="w-full p-3 rounded-lg bg-primary-bg text-white border border-tertiary-text/30 focus:border-tertiary-bg outline-none transition-colors disabled:opacity-50"
               required
               autoFocus
               disabled={isSubmitting}
@@ -89,14 +97,16 @@ const AddClassificationModal = ({ isOpen, onClose }: ModalProps) => {
 
           <div className="flex justify-end gap-3">
             <button
+              aria-label="Close Modal"
               type="button"
               onClick={onClose}
-              className="text-gray-400 hover:text-white px-4 text-sm font-medium"
+              className="text-gray-400 hover:text-white px-4 text-sm font-medium disabled:cursor-not-allowed"
               disabled={isSubmitting}
             >
               Cancel
             </button>
             <button
+              aria-label="Submit"
               type="submit"
               className="bg-tertiary-bg text-primary-bg font-bold px-6 py-2 rounded-lg hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isSubmitting}

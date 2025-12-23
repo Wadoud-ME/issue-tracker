@@ -2,17 +2,16 @@
 
 @custom-variant dark (&:is(.dark *));
 
-
 /* --- 1. DEFAULT THEME (Your Purple Theme) --- */
 :root {
   --background: #fff;
   --primary-text: #000;
   --secondary-text: #fff; /* White text on purple bg */
-  --tertiary-text: #9D6FA3;
-  --primary-bg: #3B173F;
-  --secondary-bg: #2E0C33;
-  --tertiary-bg: #D03260;
-  
+  --tertiary-text: #9d6fa3;
+  --primary-bg: #3b173f;
+  --secondary-bg: #2e0c33;
+  --tertiary-bg: #d03260;
+
   /* Fonts */
   --font-karla: "Karla", sans-serif;
 }
@@ -20,13 +19,13 @@
 /* --- 2. DARK MODE OVERRIDES (Your Dark Blue Theme) --- */
 /* These variables apply when the "dark" class is on the html tag */
 .dark {
-  --background: #0F1117;
+  --background: #0f1117;
   --primary-text: #fff; /* Inverted for readability */
-  --secondary-text: #E5E7EB; /* Light gray */
-  --tertiary-text: #6B7280;
-  --primary-bg: #0F1117;
-  --secondary-bg: #1A1F2E; 
-  --tertiary-bg: #3B82F6;
+  --secondary-text: #e5e7eb; /* Light gray */
+  --tertiary-text: #6b7280;
+  --primary-bg: #0f1117;
+  --secondary-bg: #1a1f2e;
+  --tertiary-bg: #3b82f6;
 }
 
 /* --- 3. TAILWIND CONFIG --- */
@@ -53,5 +52,60 @@
   }
   button {
     cursor: pointer;
+  }
+}
+
+@layer utilities {
+  /* The Container */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px; /* Very thin */
+    height: 6px; /* Very thin (for horizontal) */
+  }
+
+  /* The Background (Track) */
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent; /* Invisible background */
+  }
+
+  /* The Moving Part (Thumb) */
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--tertiary-text); /* Matches your text color */
+    border-radius: 10px; /* Rounded corners */
+    opacity: 0.5;
+  }
+
+  /* Hover Effect */
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--tertiary-bg); /* Highlight color on hover */
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.7s ease-out forwards;
+  }
+
+  .animate-dropdown {
+    animation: dropdownEnter 0.2s ease-out forwards;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px); /* Moves up slightly while fading in */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dropdownEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-5px); /* Start slightly smaller and higher */
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }

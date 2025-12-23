@@ -26,7 +26,7 @@ export const useUIStore = create<UIStore>((set) => ({
 }));
 
 //! STORE 02: DATA (Business Logic)
-type DataStore = {
+export type DataStore = {
   // --- NAMESPACED: CLASSIFICATIONS ---
   classifications: Classification[];
   classificationsLoading: boolean; // Renamed for safety

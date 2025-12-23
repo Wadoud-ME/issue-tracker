@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       {/* ^ suppressHydrationWarning is needed for next-themes to work without errors */}
-      <body className={`${karla.variable} antialiased`}>
+      <body className={`${karla.variable} antialiased custom-scrollbar`} suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

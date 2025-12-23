@@ -3,7 +3,8 @@
 import { cn } from "@/lib/utils";
 import { useDataStore, useUIStore } from "@/stores/useStore";
 import { useParams } from "next/navigation";
-import React, { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { useShallow } from "zustand/shallow";
 import {
   Filter,
   Plus,
@@ -25,7 +26,14 @@ export default function IssuesPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const { navOpened, setIsIssueModalOpen } = useUIStore();
-  const { classifications, issues, issuesLoading, fetchIssues } = useDataStore();
+  const { classifications, issues, issuesLoading, fetchIssues } = useDataStore(
+    useShallow((state) => ({
+      classifications: state.classifications,
+      issues: state.issues,
+      issuesLoading: state.issuesLoading,
+      fetchIssues: state.fetchIssues
+    }))
+  );
 
   useEffect(() => {
     if (spaceId) fetchIssues(spaceId);
@@ -73,7 +81,8 @@ export default function IssuesPage() {
             </div>
             <button
               onClick={() => setIsIssueModalOpen(true)}
-              className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-medium shadow-lg shadow-blue-500/20 transition-all active:scale-95 w-full sm:w-auto"
+              aria-label="Add New Issue"
+              className="flex items-center justify-center gap-2 bg-tertiary-bg hover:brightness-110 text-white px-4 py-2 rounded-lg font-medium shadow-lg shadow-tertiary-bg/20 transition-all active:scale-95 w-full sm:w-auto"
             >
               <Plus size={18} />
               <span>New Issue</span>
@@ -113,6 +122,7 @@ export default function IssuesPage() {
               <div className="relative">
                 <button
                   onClick={() => setIsFilterOpen(!isFilterOpen)}
+                  aria-label="Filter Issues"
                   className={cn(
                     "flex items-center justify-center gap-2 px-3 py-2 sm:py-1.5 text-xs font-medium rounded-md transition-colors border w-full sm:w-auto",
                     statusFilter !== "all"
@@ -131,7 +141,7 @@ export default function IssuesPage() {
                       className="fixed inset-0 z-10"
                       onClick={() => setIsFilterOpen(false)}
                     />
-                    <div className="absolute top-full right-0 sm:left-0 mt-2 w-full sm:w-48 bg-[#1E2028] border border-white/10 rounded-xl shadow-2xl z-20 overflow-hidden flex flex-col p-1.5 animate-in fade-in zoom-in-95 duration-100">
+                    <div className="absolute top-full right-0 sm:left-0 mt-2 w-full sm:w-48 bg-[#1E2028] border border-white/10 rounded-xl shadow-2xl z-20 overflow-hidden flex flex-col p-1.5 animate-dropdown">
                       <div className="px-2 py-1.5 text-[10px] font-semibold text-tertiary-text uppercase tracking-wider">
                         Filter by Status
                       </div>
@@ -142,6 +152,7 @@ export default function IssuesPage() {
                             setStatusFilter(status);
                             setIsFilterOpen(false);
                           }}
+                          aria-label={status}
                           className={cn(
                             "flex items-center justify-between px-3 py-2 text-sm rounded-lg transition-colors text-left capitalize",
                             statusFilter === status

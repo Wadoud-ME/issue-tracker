@@ -29,12 +29,12 @@ export default function IssueRow({ issue, spaceId }: IssueRowProps) {
     e.preventDefault();
     if (!confirm("Delete this issue?")) return;
     deleteIssueOptimistic(issue.id);
-    toast.success("Issue deleted"); 
     const result = await deleteIssue(issue.id, spaceId);
     if (!result.success) { 
       toast.error("Failed to delete issue");
       fetchIssues(spaceId); 
     }
+    toast.success("Issue deleted"); 
   };
 
   const handleUpdate = async (field: "status" | "priority", value: string) => {

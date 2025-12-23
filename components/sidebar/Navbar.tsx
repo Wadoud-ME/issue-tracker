@@ -2,6 +2,7 @@
 
 import { Cookie, Plus, TextAlignJustify, Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useMobileSwipe } from "@/hooks/useMobileSwipe";
 import { cn } from "../../lib/utils";
 import AddClassificationModal from "./AddClassificationModal";
 import { deleteClassification } from "../../app/actions";
@@ -11,12 +12,13 @@ import { SidebarList } from "./SidebarList";
 import { FloatingToggle } from "./FloatingToggle";
 import { useDataStore, useUIStore } from "@/stores/useStore";
 import Link from "next/link";
-import MobileSwipeHandler from "./MobileSwipeHandler";
 
 const Navbar = () => {
   const { navOpened, setNavOpened , toggleNav, isModalOpen, setIsModalOpen } = useUIStore();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+
+  useMobileSwipe();
 
   useEffect(() => {
     setMounted(true);
@@ -52,11 +54,6 @@ const Navbar = () => {
 
   return (
     <>
-      {/* ✅ 1. MOUNT THE GESTURE LISTENER */}
-      <MobileSwipeHandler />
-      {/* ✅ 2. MOBILE BACKDROP (Overlay) 
-          When menu is open on mobile, clicking outside closes it.
-      */}
       <div 
         onClick={() => setNavOpened(false)}
         className={cn(
@@ -66,8 +63,8 @@ const Navbar = () => {
       />
       <nav
         className={cn(
-          "fixed top-0 bottom-0 left-0 bg-primary-bg overflow-hidden shadow-2xl transition-all duration-500 ease-in-out whitespace-nowrap z-50",
-          navOpened ? "w-90" : "w-0"
+          "fixed top-0 bottom-0 left-0 bg-primary-bg overflow-hidden transition-all duration-500 ease-in-out whitespace-nowrap z-50",
+          navOpened ? "w-90 shadow-[5px_40px_22px_rgba(0,0,0,0.2)]" : "w-0 shadow-[0px_40px_12px_rgba(0,0,0,0.0)]"
         )}
       >
         <div className="min-w-90 h-full flex flex-col">
@@ -82,7 +79,8 @@ const Navbar = () => {
               </h1>
             </Link>
             <button
-              onClick={toggleNav}
+              aria-label="Close navbar"
+              onClick={() => setNavOpened(false)}
               className="p-2 rounded-lg hover:bg-primary-bg/50 transition-all duration-200 active:scale-95 cursor-pointer"
             >
               <TextAlignJustify size={24} className="text-gray-300" />
@@ -96,10 +94,11 @@ const Navbar = () => {
               className="text-xl text-secondary-text font-medium relative group cursor-pointer"
             >
               My Spaces
-              <span className="absolute -bottom-[1.35rem] left-0 w-0 h-2 rounded-t-lg bg-tertiary-bg group-hover:w-full transition-all duration-300 z-10"></span>
+              <span className="absolute -bottom-[1.35rem] left-0 w-0 h-2 rounded-t-lg bg-tertiary-bg group-hover:w-full transition-all duration-300 z-41"></span>
             </Link>
             <span className="h-12 w-0.5 mr-2 bg-tertiary-text/50 rounded-full"></span>
             <button
+              aria-label="Add Space"
               onClick={() => setIsModalOpen(true)}
               className="flex items-center gap-2 font-bold bg-secondary-bg hover:bg-tertiary-bg text-secondary-text hover:text-primary-bg py-2 px-4 text-sm rounded-lg shadow-lg hover:shadow-tertiary-bg/50 transition-all duration-300 active:scale-95 cursor-pointer"
             >
@@ -109,7 +108,7 @@ const Navbar = () => {
           </div>
 
           {/* --- DYNAMIC LIST AREA --- */}
-          <div className="p-4 flex-1 overflow-y-auto custom-scrollbar">
+          <div className="px-4 py-2 my-2 flex-1 overflow-y-auto custom-scrollbar">
             <SidebarList
               classifications={classifications}
               isLoading={classificationsLoading}
@@ -123,11 +122,12 @@ const Navbar = () => {
           <div className="p-4 border-t border-tertiary-text/20 bg-secondary-bg/50 mt-auto flex justify-end items-center">
             {mounted && (
               <button
+                aria-label="Change theme"
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                 className="flex items-center gap-2 p-2 rounded-lg text-tertiary-text hover:text-white hover:bg-white/10 transition-all duration-300 active:scale-95"
                 title="Toggle Theme"
               >
-                <span className="text-xs font-medium uppercase tracking-wider opacity-100">
+                <span className="text-xs font-medium uppercase tracking-wider">
                   {theme === "dark" ? "Light Mode" : "Dark Mode"}
                 </span>
                 {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
@@ -137,7 +137,6 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* ⚠️ CRITICAL FIX: Removed 'key' prop to restore smooth animations */}
       <FloatingToggle
         key={navOpened ? "closed" : "opened"}
         navOpened={navOpened}

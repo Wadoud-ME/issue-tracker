@@ -15,32 +15,47 @@ export default function CreateIssueModal() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setIsLoading(true);
+
+    const formData = new FormData(e.currentTarget);
     formData.append("spaceId", spaceId);
 
-    const result = await createIssue(formData);
-
-    if (result.success) {
-      await fetchIssues(spaceId); 
-      setIsIssueModalOpen(false);
-      toast.success("Issue created successfully!"); // ✅ Success Toast
-    } else {
-      toast.error("Error creating issue"); // 🔴 Error Toast
+    try {
+      const result = await createIssue(formData);
+      if (result.success) {
+        await fetchIssues(spaceId);
+        setIsIssueModalOpen(false);
+        toast.success("Issue created successfully!"); // ✅ Success Toast
+      } else {
+        toast.error("Error creating issue"); // 🔴 Error Toast
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   if (!isIssueModalOpen) return null;
 
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      setIsIssueModalOpen(false);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div 
+      onClick={!isLoading ? handleBackdropClick : undefined}
+      className="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 p-4">
       <div className="w-full max-w-md bg-secondary-bg border border-tertiary-text/20 rounded-2xl shadow-2xl p-6 animate-in zoom-in-95 duration-200">
-        
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-white">New Issue</h2>
-          <button 
+          <button
             onClick={() => setIsIssueModalOpen(false)}
             className="text-tertiary-text hover:text-white transition-colors"
           >
@@ -49,12 +64,13 @@ export default function CreateIssueModal() {
         </div>
 
         {/* Form */}
-        <form action={handleSubmit} className="space-y-4">
-          
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* Title Input */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-tertiary-text uppercase tracking-wider">Title</label>
-            <input 
+            <label className="text-xs font-semibold text-tertiary-text uppercase tracking-wider">
+              Title
+            </label>
+            <input
               name="title"
               required
               placeholder="e.g., Fix navigation bug"
@@ -69,7 +85,7 @@ export default function CreateIssueModal() {
               <label className="flex items-center gap-2 text-xs font-semibold text-tertiary-text uppercase tracking-wider">
                 <AlertCircle size={12} /> Priority
               </label>
-              <select 
+              <select
                 name="priority"
                 className="w-full bg-primary-bg border border-tertiary-text/30 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-blue-500 appearance-none cursor-pointer"
               >
@@ -85,7 +101,7 @@ export default function CreateIssueModal() {
               <label className="flex items-center gap-2 text-xs font-semibold text-tertiary-text uppercase tracking-wider">
                 <Tag size={12} /> Label
               </label>
-              <select 
+              <select
                 name="label"
                 className="w-full bg-primary-bg border border-tertiary-text/30 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-blue-500 appearance-none cursor-pointer"
               >
@@ -98,12 +114,16 @@ export default function CreateIssueModal() {
 
           {/* Submit Button */}
           <div className="pt-4">
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={isLoading}
               className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-lg shadow-lg shadow-blue-500/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {isLoading ? <Loader2 className="animate-spin" size={18} /> : "Create Issue"}
+              {isLoading ? (
+                <Loader2 className="animate-spin" size={18} />
+              ) : (
+                "Create Issue"
+              )}
             </button>
           </div>
         </form>

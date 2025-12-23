@@ -1,46 +1,131 @@
-// prisma/schema.prisma
-
-// 1. GENERATOR: This tells Prisma to create the JavaScript commands for us
+// ==========================================
+// 1. GENERATOR BLOCK
+// ==========================================
+// This tells Prisma: "Read this file and generate a TypeScript Client."
+// It creates the 'node_modules/@prisma/client' folder.
+// Without this, your code (e.g., prisma.create()) wouldn't work.
 generator client {
   provider = "prisma-client-js"
 }
 
-// 2. DATASOURCE: This tells Prisma we are using a SQLite file
-// In version 5, we put the URL right here!
+// ==========================================
+// 2. DATASOURCE BLOCK
+// ==========================================
+// This configures the connection to your actual database.
 datasource db {
+  // We switched from "sqlite" to "postgresql" for production on Vercel.
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+
+  // Security: We don't type the password here.
+  // We tell Prisma to look in the .env file for the variable "DATABASE_URL".
+  url = env("DATABASE_URL")
 }
 
-// 3. MODEL: This is our data structure
+// ==========================================
+// 3. MODELS (THE DATABASE TABLES)
+// ==========================================
+
+// MODEL A: Classification (Your "Spaces")
 model Classification {
-  id        String   @id @default(cuid())  // Unique ID (like "clt123...")
-  name      String                           // The name (e.g. "Study")
-  createdAt DateTime @default(now())         // When was it created?
-  issues    Issue[]
+  // @id: This is the Primary Key (Unique Fingerprint for this row).
+  // @default(cuid()): Automatically generates a secure ID like "clt123...".
+  id String @id @default(cuid())
+
+  name String // A standard text column.
+
+  // @default(now()): Automatically saves the exact time creation happened.
+  createdAt DateTime @default(now())
+
+  // --- VIRTUAL FIELD (Relation) ---
+  // This column does NOT exist in the database table.
+  // It is a helper for YOU. It lets you get all issues for a space easily:
+  // e.g., prisma.classification.findMany({ include: { issues: true } })
+  issues Issue[]
 }
 
+// MODEL B: Issue (The Tasks inside a Space)
 model Issue {
-  id          String   @id @default(cuid())
-  title       String
-  description String?   // Optional long description
-  
-  // Status: "todo", "in_progress", "done"
-  status      String   @default("todo") 
-  
-  // Priority: "low", "medium", "high", "critical"
-  priority    String   @default("medium") 
-  
-  // Category: "bug", "feature", "improvement"
-  label       String   @default("feature")
+  id    String @id @default(cuid())
+  title String
 
-  // The Foreign Key (Link to Classification)
-  spaceId        String
+  // String?: The '?' means this field is OPTIONAL (Nullable).
+  // It can be empty if the user doesn't write a description.
+  description String?
+
+  // @default("..."): If the user doesn't provide a status,
+  // the database automatically fills it with "todo".
+  status   String @default("todo")
+  priority String @default("medium")
+  label    String @default("feature")
+
+  // --- THE RELATION (Linking Model B to Model A) ---
+
+  // 1. The Foreign Key Column (Real Database Column)
+  // This stores the ID of the space (e.g., "clt123...").
+  spaceId String
+
+  // 2. The Link Configuration (Virtual Field)
+  // This tells Prisma how to connect them:
+  // fields: [spaceId] -> Look at the 'spaceId' column in THIS table (Issue).
+  // references: [id]  -> Find the matching 'id' in the OTHER table (Classification).
+  // onDelete: Cascade -> If the Space is deleted, automatically delete ALL its Issues too.
   classification Classification @relation(fields: [spaceId], references: [id], onDelete: Cascade)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  // Optional: Auto-incrementing friendly ID (like ISS-1, ISS-2)
-  // For now, let's stick to simple CUIDs to keep it easy
+  createdAt DateTime @default(now())
+
+  // @updatedAt: Prisma magic. Whenever you change the title/status/etc,
+  // Prisma automatically updates this timestamp to "now".
+  updatedAt DateTime @updatedAt
 }
+
+// ... (Your existing schema code above) ...
+
+// =====================================================================
+// 📚 LEARNING NOTES: HOW TO ACCESS RELATIONS IN CODE
+// =====================================================================
+
+// Q: Why can't I just type "classification.issues.title"?
+// A: Because of the "Performance Rule".
+//    By default, Prisma strictly fetches ONLY the data in the specific table you asked for.
+//    It does NOT fetch connected data (relations) automatically, because that could be huge.
+
+// ---------------------------------------------------------------------
+// !SCENARIO 1: Accessing the PARENT (Issue -> Classification)
+// ---------------------------------------------------------------------
+// Relationship: "Belongs To" (One-to-One from the Issue's perspective)
+// Result Type:  Object { id: "...", name: "..." }
+
+/**
+ *? 1. You must ask for it using 'include':
+ * const issue = await prisma.issue.findUnique({
+ * where: { id: "issue-123" },
+ * include: { classification: true } // <--- THE KEY to unlocking the data
+ * });
+ * ?2. Accessing it:
+ * Since it is a single Object, you can access fields directly.
+ * console.log(issue.classification.name); // ✅ Works!
+ */
+
+// ---------------------------------------------------------------------
+// !SCENARIO 2: Accessing the CHILDREN (Classification -> Issues)
+// ---------------------------------------------------------------------
+// Relationship: "Has Many" (One-to-Many)
+// Result Type:  Array [ { id: "..." }, { id: "..." } ]
+
+/**
+ * ?1. You must ask for it using 'include':
+ * const space = await prisma.classification.findUnique({
+ * where: { id: "space-123" },
+ * include: { issues: true } // <--- THE KEY
+ * });
+ * ?2. Accessing it:
+ * ❌ ERROR: You CANNOT do this:
+ * console.log(space.issues.title);
+ * Why? Because 'space.issues' is a LIST (Array). An Array doesn't have a title.
+ * ✅ CORRECT: You must loop through the array or pick an index.
+ * space.issues.forEach(issue => {
+ * console.log(issue.title); // Prints title for every issue
+ * });
+ * OR access a specific one:
+ * console.log(space.issues[0]?.title);
+ */
